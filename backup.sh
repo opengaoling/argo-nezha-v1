@@ -34,7 +34,7 @@ git clone "https://${GH_PAT}@github.com/${GH_BACKUP_USER}/${GH_REPO}.git" --dept
 if [ -d "/tmp/$GH_REPO" ]; then
     TIME=$(date "+%Y-%m-%d-%H:%M:%S")
     echo "↓↓↓↓↓↓↓↓↓↓ dashboard-$TIME.tar.gz list ↓↓↓↓↓↓↓↓↓↓"
-    tar czvf "/tmp/$GH_REPO/dashboard-$TIME.tar.gz" -C "$WORK_DIR" data/
+    tar czvf "/tmp/$GH_REPO/dashboard-$TIME.tar.gz" --exclude="data/tsdb" -C "$WORK_DIR" data/
     echo -e "↑↑↑↑↑↑↑↑↑↑ dashboard-$TIME.tar.gz list ↑↑↑↑↑↑↑↑↑↑\n"
 
     # 更新备份 GitHub 库
