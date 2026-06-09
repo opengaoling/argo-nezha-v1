@@ -1,10 +1,12 @@
 # 第一阶段：从定制 Nezha 面板源码构建 dashboard 应用
-FROM golang:1.26.4-alpine AS app
+FROM golang:1.26.4-bookworm AS app
 
 ARG NEZHA_REPO=https://github.com/opengaoling/nezha-geoip-panel.git
 ARG NEZHA_REF=master
 
-RUN apk add --no-cache git gcc musl-dev
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends git gcc libc6-dev ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /src
 
