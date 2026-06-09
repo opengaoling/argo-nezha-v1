@@ -1,8 +1,26 @@
-# 第一阶段：构建 Nezha 应用
-FROM ghcr.io/nezhahq/nezha:latest AS app
+# 第一阶段：从定制 Nezha 面板源码构建 dashboard 应用
+FROM golang:1.26.4-alpine AS app
+
+ARG NEZHA_REPO=https://github.com/opengaoling/nezha-geoip-panel.git
+ARG NEZHA_REF=master
+
+RUN apk add --no-cache git gcc musl-dev
+
+WORKDIR /src
+
+RUN git clone --depth 1 --branch "$NEZHA_REF" "$NEZHA_REPO" .
+RUN go install github.com/swaggo/swag/cmd/swag@latest
+RUN swag init --pd -d cmd/dashboard -g main.go -o cmd/dashboard/docs
+RUN CGO_ENABLED=1 CGO_LDFLAGS="-static" \
+    go build -buildvcs=false -trimpath \
+    -ldflags "-linkmode external -extldflags -static -s -w" \
+    -o /dashboard/app ./cmd/dashboard
 
 # 第二阶段：构建最终运行环境
 FROM nginx:stable-alpine
+
+LABEL org.opencontainers.image.source="https://github.com/opengaoling/argo-nezha-v1" \
+      org.opencontainers.image.description="Argo Nezha V1 with customized GeoIP dashboard"
 
 # 安装必要软件
 RUN apk add --no-cache \

@@ -15,7 +15,7 @@ error() { echo -e "${RED}[错误]${NC} $1"; }
 
 # 设置变量
 GH_PROXY_URL="https://ghfast.top"
-GH_CLONE_URL="https://github.com/obkj/argo-nezha-v1.git"
+GH_CLONE_URL="https://github.com/opengaoling/argo-nezha-v1.git"
 project_dir="argo-nezha-v1"
 export TZ=Asia/Shanghai
 
@@ -192,7 +192,7 @@ clone_or_update_repo() {
         fi
         
         # 尝试克隆仓库（带重试机制）
-        if ! retry 3 git clone --branch github --depth 1 "$clone_url" "$project_dir"; then
+        if ! retry 3 git clone --branch main --depth 1 "$clone_url" "$project_dir"; then
             error "克隆失败！正在恢复备份..."
             mkdir -p "$project_dir" || return 3
             mv "$backup_dir"/* "$project_dir"/ 2>/dev/null || :
@@ -206,7 +206,7 @@ clone_or_update_repo() {
         success "仓库更新完成，用户数据保留成功！"
     else
         info "全新安装模式..."
-        if ! retry 3 git clone --branch github --depth 1 "$clone_url" "$project_dir"; then
+        if ! retry 3 git clone --branch main --depth 1 "$clone_url" "$project_dir"; then
             error "克隆失败！原因: 1. 网络问题 2. 镜像不可用"
             return 5
         fi

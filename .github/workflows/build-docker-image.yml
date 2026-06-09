@@ -2,41 +2,43 @@ name: build-docker-image
 
 on:
   workflow_dispatch:
-  # push:
-  #   branches:
-  #     - github  # 这里可以是你希望触发 workflow 的分支，比如 main、master 等..
+  push:
+    branches:
+      - main
 
 env:
-  DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-  DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
   DOCKER_IMAGE_NAME: "argo-nezha-v1"
-  GITHUB_REPO: "nezhahq/nezha"
+  NEZHA_REPO: "opengaoling/nezha-geoip-panel"
   TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
   TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Get latest release tag
+      - name: Get Nezha source ref
         id: get_latest_tag
         run: |
-          LATEST_TAG=$(curl -s https://api.github.com/repos/${{ env.GITHUB_REPO }}/releases/latest | grep -oP '"tag_name": "\K(.*)(?=")')
-          echo "Latest tag: $LATEST_TAG"
+          LATEST_TAG=$(curl -s https://api.github.com/repos/${{ env.NEZHA_REPO }}/commits/master | grep -oP '"sha": "\K[0-9a-f]+' | head -n 1 | cut -c1-7)
+          echo "Nezha source ref: $LATEST_TAG"
           echo "latest_tag=$LATEST_TAG" >> $GITHUB_OUTPUT
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      - name: Log in to Docker Hub
+      - name: Log in to GitHub Container Registry
         uses: docker/login-action@v2
         with:
-          username: ${{ env.DOCKER_USERNAME }}
-          password: ${{ env.DOCKER_PASSWORD }}
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v4
@@ -44,16 +46,20 @@ jobs:
           context: .
           platforms: linux/amd64,linux/arm64
           push: true
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.description=Argo Nezha V1 with customized GeoIP dashboard
           tags: |
-            ${{ env.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:latest
-            ${{ env.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ steps.get_latest_tag.outputs.latest_tag }}
+            ghcr.io/${{ github.repository_owner }}/${{ env.DOCKER_IMAGE_NAME }}:latest
+            ghcr.io/${{ github.repository_owner }}/${{ env.DOCKER_IMAGE_NAME }}:${{ steps.get_latest_tag.outputs.latest_tag }}
 
       - name: Send Telegram notification
+        if: ${{ env.TELEGRAM_BOT_TOKEN != '' && env.TELEGRAM_CHAT_ID != '' }}
         env:
-          DOCKER_IMAGE_URL: https://hub.docker.com/r/${{ env.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}/tags
+          DOCKER_IMAGE_URL: https://github.com/${{ github.repository }}/pkgs/container/${{ env.DOCKER_IMAGE_NAME }}
         run: |
           MESSAGE="新的 ${{ env.DOCKER_IMAGE_NAME }} 镜像已推送 🚀%0A%0A"
-          MESSAGE+="版本: ${{ steps.get_latest_tag.outputs.latest_tag }}%0A"
+          MESSAGE+="Nezha 源码版本: ${{ steps.get_latest_tag.outputs.latest_tag }}%0A"
           MESSAGE+="镜像地址: $DOCKER_IMAGE_URL"
           curl -s -X POST "https://api.telegram.org/bot${{ env.TELEGRAM_BOT_TOKEN }}/sendMessage" \
             -d chat_id="${{ env.TELEGRAM_CHAT_ID }}" \
