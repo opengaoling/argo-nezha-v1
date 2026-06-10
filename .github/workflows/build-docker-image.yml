@@ -36,9 +36,6 @@ jobs:
           echo "source_sha=$SOURCE_SHA" >> $GITHUB_OUTPUT
           echo "latest_tag=$SOURCE_TAG" >> $GITHUB_OUTPUT
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-
       - name: Pre-pull BuildKit image
         run: |
           for attempt in 1 2 3 4 5; do
@@ -65,7 +62,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64
           push: true
           cache-from: type=gha
           cache-to: type=gha,mode=max
