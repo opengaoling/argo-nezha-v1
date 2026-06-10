@@ -1,12 +1,14 @@
+# syntax=docker/dockerfile:1.7
 # 第一阶段：从定制 Nezha 面板源码构建 dashboard 应用
 FROM golang:1.26.4-bookworm AS app
 
 ARG NEZHA_REPO=https://github.com/opengaoling/nezha-geoip-panel.git
 ARG NEZHA_REF=master
 
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends git gcc libc6-dev ca-certificates \
-    && rm -rf /var/lib/apt/lists/*
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt/lists,sharing=locked \
+    apt-get update \
+    && apt-get install -y --no-install-recommends git gcc libc6-dev ca-certificates
 
 WORKDIR /src
 
@@ -14,9 +16,15 @@ RUN git init \
     && git remote add origin "$NEZHA_REPO" \
     && git fetch --depth 1 origin "$NEZHA_REF" \
     && git checkout --detach FETCH_HEAD
-RUN go install github.com/swaggo/swag/cmd/swag@latest
-RUN swag init --pd -d cmd/dashboard -g main.go -o cmd/dashboard/docs
-RUN CGO_ENABLED=1 CGO_LDFLAGS="-static" \
+RUN --mount=type=cache,target=/go/pkg/mod \
+    --mount=type=cache,target=/root/.cache/go-build \
+    go install github.com/swaggo/swag/cmd/swag@latest
+RUN --mount=type=cache,target=/go/pkg/mod \
+    --mount=type=cache,target=/root/.cache/go-build \
+    swag init --pd -d cmd/dashboard -g main.go -o cmd/dashboard/docs
+RUN --mount=type=cache,target=/go/pkg/mod \
+    --mount=type=cache,target=/root/.cache/go-build \
+    CGO_ENABLED=1 CGO_LDFLAGS="-static" \
     go build -buildvcs=false -trimpath \
     -ldflags "-linkmode external -extldflags -static -s -w" \
     -o /dashboard/app ./cmd/dashboard
@@ -28,7 +36,8 @@ LABEL org.opencontainers.image.source="https://github.com/opengaoling/argo-nezha
       org.opencontainers.image.description="Argo Nezha V1 with customized GeoIP dashboard"
 
 # 安装必要软件
-RUN apk add --no-cache \
+RUN --mount=type=cache,target=/var/cache/apk \
+    apk add --no-cache \
         tar \
         gzip \
         tzdata \
@@ -41,8 +50,7 @@ RUN apk add --no-cache \
         git \
         bash \
         wget && \
-    rc-update add dcron && \
-    rm -rf /var/cache/apk/*
+    rc-update add dcron
 
 # 拷贝 cloudflared 二进制文件
 COPY --from=cloudflare/cloudflared:latest /usr/local/bin/cloudflared /usr/local/bin/cloudflared
