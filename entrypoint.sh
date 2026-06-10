@@ -11,28 +11,6 @@ error() { echo -e "\033[31m\033[01m[ERROR] $*\033[0m"; exit 1; }
 [ ! -f "$WORK_DIR/backup.sh" ] && error "备份脚本 $WORK_DIR/backup.sh 不存在"
 [ ! -f "$WORK_DIR/restore.sh" ] && error "恢复脚本 $WORK_DIR/restore.sh 不存在"
 
-download_if_missing() {
-    local path="$1"
-    local url="$2"
-    local name="$3"
-
-    if [ -s "$path" ]; then
-        return 0
-    fi
-
-    info "下载 $name 数据库..."
-    mkdir -p "$(dirname "$path")" || error "无法创建 $(dirname "$path")"
-    wget -q -O "${path}.tmp" "$url" || {
-        rm -f "${path}.tmp"
-        error "下载 $name 数据库失败"
-    }
-    if [ ! -s "${path}.tmp" ]; then
-        rm -f "${path}.tmp"
-        error "$name 数据库为空"
-    fi
-    mv "${path}.tmp" "$path" || error "无法保存 $name 数据库"
-}
-
 # 配置定时备份任务
 info "配置定时备份任务..."
 mkdir -p "$WORK_DIR/logs" || error "无法创建日志目录 /logs"
@@ -42,9 +20,6 @@ echo "3 3 * * * $WORK_DIR/backup.sh > $WORK_DIR/logs/backup.log 2>&1 # NEZHA-V1-
 # 尝试恢复备份
 info "尝试恢复备份..."
 $WORK_DIR/restore.sh || { info "恢复备份失败";}
-
-download_if_missing "$WORK_DIR/data/geoip.db" "https://raw.githubusercontent.com/P3TERX/GeoLite.mmdb/download/GeoLite2-Country.mmdb" "GeoIP Country"
-download_if_missing "$WORK_DIR/data/asn.mmdb" "https://raw.githubusercontent.com/P3TERX/GeoLite.mmdb/download/GeoLite2-ASN.mmdb" "GeoIP ASN"
 
 # 启动 crond
 info "启动 cron 定时任务服务..."

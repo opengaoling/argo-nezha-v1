@@ -70,8 +70,8 @@ ENV TZ=Asia/Shanghai
 # 设置工作目录
 WORKDIR /dashboard
 
-# 准备数据目录及权限
-RUN mkdir -p /dashboard/data && chmod -R 777 /dashboard
+# 准备数据和可再生成缓存目录及权限
+RUN mkdir -p /dashboard/data /dashboard/geoip && chmod -R 777 /dashboard
 
 # 拷贝配置和脚本文件
 COPY dashboard/data/config.yaml /dashboard/data

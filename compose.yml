@@ -7,3 +7,4 @@ services:
       - .env
     volumes:
       - ./dashboard/data:/dashboard/data
+      - ./dashboard/geoip:/dashboard/geoip
