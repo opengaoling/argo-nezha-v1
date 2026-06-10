@@ -10,7 +10,10 @@ RUN apt-get update \
 
 WORKDIR /src
 
-RUN git clone --depth 1 --branch "$NEZHA_REF" "$NEZHA_REPO" .
+RUN git init \
+    && git remote add origin "$NEZHA_REPO" \
+    && git fetch --depth 1 origin "$NEZHA_REF" \
+    && git checkout --detach FETCH_HEAD
 RUN go install github.com/swaggo/swag/cmd/swag@latest
 RUN swag init --pd -d cmd/dashboard -g main.go -o cmd/dashboard/docs
 RUN CGO_ENABLED=1 CGO_LDFLAGS="-static" \

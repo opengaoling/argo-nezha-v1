@@ -26,9 +26,11 @@ jobs:
       - name: Get Nezha source ref
         id: get_latest_tag
         run: |
-          LATEST_TAG=$(curl -s https://api.github.com/repos/${{ env.NEZHA_REPO }}/commits/master | grep -oP '"sha": "\K[0-9a-f]+' | head -n 1 | cut -c1-7)
-          echo "Nezha source ref: $LATEST_TAG"
-          echo "latest_tag=$LATEST_TAG" >> $GITHUB_OUTPUT
+          SOURCE_SHA=$(curl -s https://api.github.com/repos/${{ env.NEZHA_REPO }}/commits/master | grep -oP '"sha": "\K[0-9a-f]+' | head -n 1)
+          SOURCE_TAG=$(echo "$SOURCE_SHA" | cut -c1-7)
+          echo "Nezha source ref: $SOURCE_SHA"
+          echo "source_sha=$SOURCE_SHA" >> $GITHUB_OUTPUT
+          echo "latest_tag=$SOURCE_TAG" >> $GITHUB_OUTPUT
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -49,6 +51,8 @@ jobs:
           context: .
           platforms: linux/amd64,linux/arm64
           push: true
+          build-args: |
+            NEZHA_REF=${{ steps.get_latest_tag.outputs.source_sha }}
           labels: |
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
             org.opencontainers.image.description=Argo Nezha V1 with customized GeoIP dashboard
