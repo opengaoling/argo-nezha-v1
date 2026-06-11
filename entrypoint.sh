@@ -17,9 +17,14 @@ mkdir -p "$WORK_DIR/logs" || error "无法创建日志目录 /logs"
 chmod 755 $WORK_DIR/logs || error "无法设置 /logs 目录权限"
 echo "3 3 * * * $WORK_DIR/backup.sh > $WORK_DIR/logs/backup.log 2>&1 # NEZHA-V1-BACKUP" > /var/spool/cron/crontabs/root
 
-# 尝试恢复备份
-info "尝试恢复备份..."
-$WORK_DIR/restore.sh || { info "恢复备份失败";}
+# 首次启动或本地数据缺失时才恢复备份。容器重建时如果挂载数据已存在，
+# 不应让远端旧备份覆盖用户刚在面板里保存的配置和数据库。
+if [ ! -s "$WORK_DIR/data/sqlite.db" ] || [ ! -s "$WORK_DIR/data/config.yaml" ]; then
+    info "本地数据缺失，尝试恢复备份..."
+    $WORK_DIR/restore.sh || { info "恢复备份失败"; }
+else
+    info "检测到本地数据，跳过启动时恢复备份。"
+fi
 
 # 启动 crond
 info "启动 cron 定时任务服务..."
