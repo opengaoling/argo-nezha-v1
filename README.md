@@ -67,10 +67,22 @@ docker-compose up -d
 
 构建流程：
 - 从本仓库 checkout Dockerfile 和部署脚本
-- 从 `opengaoling/nezha-geoip-panel` 拉取定制 Nezha 面板源码
-- 编译 `/dashboard/app`
+- 引用 `opengaoling/nezha-geoip-panel` 已发布的面板应用镜像
+- 从面板应用镜像复制 `/dashboard/app`
 - 组装 Nginx、cloudflared、备份恢复脚本
 - 推送到 GHCR
+
+面板仓库需先构建并发布：
+
+```text
+opengaoling/nezha-geoip-panel -> Actions -> build-dashboard-app-image
+```
+
+本仓库会按面板仓库 `master` 最新 commit 短 SHA 引用：
+
+```text
+ghcr.io/opengaoling/nezha-geoip-panel:<sha>
+```
 
 手动触发：
 

@@ -8,7 +8,8 @@ on:
 
 env:
   DOCKER_IMAGE_NAME: "argo-nezha-v1"
-  NEZHA_REPO: "opengaoling/nezha-geoip-panel"
+  PANEL_REPO: "opengaoling/nezha-geoip-panel"
+  PANEL_IMAGE_NAME: "nezha-geoip-panel"
   TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
   TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
 
@@ -27,14 +28,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v5
 
-      - name: Get Nezha source ref
-        id: get_latest_tag
+      - name: Get panel image ref
+        id: panel
         run: |
-          SOURCE_SHA=$(curl -s https://api.github.com/repos/${{ env.NEZHA_REPO }}/commits/master | grep -oP '"sha": "\K[0-9a-f]+' | head -n 1)
-          SOURCE_TAG=$(echo "$SOURCE_SHA" | cut -c1-7)
-          echo "Nezha source ref: $SOURCE_SHA"
-          echo "source_sha=$SOURCE_SHA" >> $GITHUB_OUTPUT
-          echo "latest_tag=$SOURCE_TAG" >> $GITHUB_OUTPUT
+          PANEL_SHA=$(curl -s https://api.github.com/repos/${{ env.PANEL_REPO }}/commits/master | grep -oP '"sha": "\K[0-9a-f]+' | head -n 1)
+          PANEL_TAG=$(echo "$PANEL_SHA" | cut -c1-7)
+          PANEL_IMAGE="ghcr.io/${{ github.repository_owner }}/${{ env.PANEL_IMAGE_NAME }}:${PANEL_TAG}"
+          echo "Panel image ref: $PANEL_IMAGE"
+          echo "panel_sha=$PANEL_SHA" >> $GITHUB_OUTPUT
+          echo "panel_tag=$PANEL_TAG" >> $GITHUB_OUTPUT
+          echo "panel_image=$PANEL_IMAGE" >> $GITHUB_OUTPUT
 
       - name: Pre-pull BuildKit image
         run: |
@@ -67,13 +70,14 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           build-args: |
-            NEZHA_REF=${{ steps.get_latest_tag.outputs.source_sha }}
+            PANEL_IMAGE=${{ steps.panel.outputs.panel_image }}
           labels: |
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
             org.opencontainers.image.description=Argo Nezha V1 with customized GeoIP dashboard
+            org.opencontainers.image.base.name=${{ steps.panel.outputs.panel_image }}
           tags: |
             ghcr.io/${{ github.repository_owner }}/${{ env.DOCKER_IMAGE_NAME }}:latest
-            ghcr.io/${{ github.repository_owner }}/${{ env.DOCKER_IMAGE_NAME }}:${{ steps.get_latest_tag.outputs.latest_tag }}
+            ghcr.io/${{ github.repository_owner }}/${{ env.DOCKER_IMAGE_NAME }}:${{ steps.panel.outputs.panel_tag }}
 
       - name: Send Telegram notification
         if: ${{ env.TELEGRAM_BOT_TOKEN != '' && env.TELEGRAM_CHAT_ID != '' }}
@@ -81,7 +85,7 @@ jobs:
           DOCKER_IMAGE_URL: https://github.com/${{ github.repository }}/pkgs/container/${{ env.DOCKER_IMAGE_NAME }}
         run: |
           MESSAGE="新的 ${{ env.DOCKER_IMAGE_NAME }} 镜像已推送 🚀%0A%0A"
-          MESSAGE+="Nezha 源码版本: ${{ steps.get_latest_tag.outputs.latest_tag }}%0A"
+          MESSAGE+="面板镜像版本: ${{ steps.panel.outputs.panel_tag }}%0A"
           MESSAGE+="镜像地址: $DOCKER_IMAGE_URL"
           curl -s -X POST "https://api.telegram.org/bot${{ env.TELEGRAM_BOT_TOKEN }}/sendMessage" \
             -d chat_id="${{ env.TELEGRAM_CHAT_ID }}" \

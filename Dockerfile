@@ -1,33 +1,7 @@
 # syntax=docker/dockerfile:1.7
-# 第一阶段：从定制 Nezha 面板源码构建 dashboard 应用
-FROM golang:1.26.4-bookworm AS app
-
-ARG NEZHA_REPO=https://github.com/opengaoling/nezha-geoip-panel.git
-ARG NEZHA_REF=master
-
-RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,target=/var/lib/apt/lists,sharing=locked \
-    apt-get update \
-    && apt-get install -y --no-install-recommends git gcc libc6-dev ca-certificates
-
-WORKDIR /src
-
-RUN git init \
-    && git remote add origin "$NEZHA_REPO" \
-    && git fetch --depth 1 origin "$NEZHA_REF" \
-    && git checkout --detach FETCH_HEAD
-RUN --mount=type=cache,target=/go/pkg/mod \
-    --mount=type=cache,target=/root/.cache/go-build \
-    go install github.com/swaggo/swag/cmd/swag@latest
-RUN --mount=type=cache,target=/go/pkg/mod \
-    --mount=type=cache,target=/root/.cache/go-build \
-    swag init --pd -d cmd/dashboard -g main.go -o cmd/dashboard/docs
-RUN --mount=type=cache,target=/go/pkg/mod \
-    --mount=type=cache,target=/root/.cache/go-build \
-    CGO_ENABLED=1 CGO_LDFLAGS="-static" \
-    go build -buildvcs=false -trimpath \
-    -ldflags "-linkmode external -extldflags -static -s -w" \
-    -o /dashboard/app ./cmd/dashboard
+# 第一阶段：引用定制 Nezha 面板仓库已构建好的 dashboard 应用
+ARG PANEL_IMAGE=ghcr.io/opengaoling/nezha-geoip-panel:latest
+FROM ${PANEL_IMAGE} AS app
 
 # 第二阶段：构建最终运行环境
 FROM nginx:stable-alpine
