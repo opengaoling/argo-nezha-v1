@@ -1,0 +1,5 @@
+dashboard/admin-dist/
+dashboard/user-dist/
+dashboard/geoip/
+dashboard/data/sqlite.db
+dashboard/data/*.before-*
