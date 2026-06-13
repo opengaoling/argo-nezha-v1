@@ -8,3 +8,5 @@ services:
     volumes:
       - ./dashboard/data:/dashboard/data
       - ./dashboard/geoip:/dashboard/geoip
+      - ./dashboard/admin-dist:/dashboard/admin-dist
+      - ./dashboard/user-dist:/dashboard/user-dist

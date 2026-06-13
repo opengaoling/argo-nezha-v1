@@ -46,16 +46,8 @@ ENV TZ=Asia/Shanghai
 # 设置工作目录
 WORKDIR /dashboard
 
-# 准备数据、前端静态资源和可再生成缓存目录
-RUN mkdir -p /dashboard/data /dashboard/geoip /dashboard/admin-dist /dashboard/user-dist
-
-# 拷贝本仓库定制前端。前端不编译进 app 二进制，但会随镜像发布，并由 nginx 直接读取。
-COPY dashboard/admin-dist /dashboard/default-frontend/admin-dist
-COPY dashboard/user-dist /dashboard/default-frontend/user-dist
-COPY dashboard/admin-dist /dashboard/admin-dist
-COPY dashboard/user-dist /dashboard/user-dist
-
-RUN chmod -R 777 /dashboard
+# 准备数据、前端静态资源和可再生成缓存目录及权限
+RUN mkdir -p /dashboard/data /dashboard/geoip /dashboard/admin-dist /dashboard/user-dist && chmod -R 777 /dashboard
 
 # 拷贝配置和脚本文件
 COPY dashboard/data/config.yaml /dashboard/data
