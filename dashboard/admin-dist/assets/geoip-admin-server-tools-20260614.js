@@ -6,6 +6,7 @@
   var observer = null;
   var applying = false;
   var fetchTimer = 0;
+  var started = false;
 
   var sortFields = [
     ["default", "默认"],
@@ -353,6 +354,7 @@
   }
 
   async function loadServers() {
+    if (!isServerPage()) return;
     try {
       var response = await fetch("/api/v1/server", { credentials: "same-origin", cache: "no-store" });
       if (!response.ok) return;
@@ -374,17 +376,29 @@
   }
 
   function tick() {
+    if (!isServerPage()) {
+      if (toolbar) toolbar.hidden = true;
+      return;
+    }
     mountToolbar();
     applyTable();
   }
 
-  function start() {
+  function refresh() {
+    if (!isServerPage()) {
+      if (toolbar) toolbar.hidden = true;
+      return;
+    }
     scheduleLoad();
     tick();
     window.setTimeout(tick, 300);
     window.setTimeout(tick, 1000);
     window.setTimeout(tick, 2500);
+  }
 
+  function start() {
+    if (started) return;
+    started = true;
     if (!observer) {
       observer = new MutationObserver(function () {
         if (applying) return;
@@ -394,9 +408,23 @@
     }
 
     window.addEventListener("popstate", function () {
-      scheduleLoad();
-      window.setTimeout(tick, 100);
+      window.setTimeout(refresh, 100);
     });
+
+    var originalPushState = history.pushState;
+    var originalReplaceState = history.replaceState;
+    history.pushState = function () {
+      var result = originalPushState.apply(this, arguments);
+      window.setTimeout(refresh, 100);
+      return result;
+    };
+    history.replaceState = function () {
+      var result = originalReplaceState.apply(this, arguments);
+      window.setTimeout(refresh, 100);
+      return result;
+    };
+
+    refresh();
   }
 
   if (document.readyState === "loading") {
