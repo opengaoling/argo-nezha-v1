@@ -1,14 +1,4 @@
-dashboard/admin-dist/*
-!dashboard/admin-dist/index.html
-!dashboard/admin-dist/assets/
-dashboard/admin-dist/assets/*
-!dashboard/admin-dist/assets/geoip-*
 dashboard/admin-dist/assets/*.bak-*
-dashboard/user-dist/*
-!dashboard/user-dist/index.html
-!dashboard/user-dist/assets/
-dashboard/user-dist/assets/*
-!dashboard/user-dist/assets/geoip-*
 dashboard/user-dist/assets/*.bak-*
 dashboard/geoip/
 dashboard/data/sqlite.db
