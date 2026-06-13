@@ -1,5 +1,10 @@
 dashboard/admin-dist/
-dashboard/user-dist/
+dashboard/user-dist/*
+!dashboard/user-dist/index.html
+!dashboard/user-dist/assets/
+dashboard/user-dist/assets/*
+!dashboard/user-dist/assets/geoip-*
+dashboard/user-dist/assets/*.bak-*
 dashboard/geoip/
 dashboard/data/sqlite.db
 dashboard/data/*.before-*

@@ -1,0 +1,35 @@
+/* Mobile-safe layout base.
+   Keep desktop row overrides out of this file. */
+
+.geoip-mobile-ua #root .geoip-mobile-cpu > .geoip-native-usage-bar,
+.geoip-mobile-ua #root .geoip-mobile-mem > .geoip-native-usage-bar,
+.geoip-mobile-ua #root .geoip-mobile-stg > .geoip-native-usage-bar {
+  background: rgba(120, 113, 108, 0.18) !important;
+  border-radius: 999px !important;
+  box-sizing: border-box !important;
+  display: block !important;
+  flex: 0 0 1.5px !important;
+  height: 1.5px !important;
+  line-height: 0 !important;
+  margin: 1px 0 0 !important;
+  max-height: 1.5px !important;
+  max-width: 100% !important;
+  min-height: 0 !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+  position: relative !important;
+  width: 100% !important;
+}
+
+.geoip-mobile-ua #root .geoip-mobile-cpu > .geoip-native-usage-bar > div,
+.geoip-mobile-ua #root .geoip-mobile-mem > .geoip-native-usage-bar > div,
+.geoip-mobile-ua #root .geoip-mobile-stg > .geoip-native-usage-bar > div {
+  border-radius: inherit !important;
+  display: block !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  transform: none !important;
+  transition: width 180ms ease !important;
+}
