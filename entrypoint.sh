@@ -26,6 +26,23 @@ else
     info "检测到本地数据，跳过启动时恢复备份。"
 fi
 
+seed_frontend() {
+    local name="$1"
+    local target="$WORK_DIR/$name"
+    local source="$WORK_DIR/default-frontend/$name"
+
+    if [ -s "$target/index.html" ]; then
+        return 0
+    fi
+    [ ! -d "$source" ] && error "默认前端资源 $source 不存在"
+    info "初始化前端资源: $name"
+    mkdir -p "$target" || error "无法创建前端目录 $target"
+    cp -a "$source"/. "$target"/ || error "无法初始化前端资源 $name"
+}
+
+seed_frontend "admin-dist"
+seed_frontend "user-dist"
+
 # 启动 crond
 info "启动 cron 定时任务服务..."
 crond

@@ -31,6 +31,8 @@ COPY --from=cloudflare/cloudflared:latest /usr/local/bin/cloudflared /usr/local/
 
 # 拷贝 Nezha 应用
 COPY --from=app /dashboard/app /dashboard/app
+COPY --from=app /dashboard/admin-dist /dashboard/default-frontend/admin-dist
+COPY --from=app /dashboard/user-dist /dashboard/default-frontend/user-dist
 
 # 拷贝证书
 COPY --from=app /etc/ssl/certs /etc/ssl/certs
@@ -44,8 +46,8 @@ ENV TZ=Asia/Shanghai
 # 设置工作目录
 WORKDIR /dashboard
 
-# 准备数据和可再生成缓存目录及权限
-RUN mkdir -p /dashboard/data /dashboard/geoip && chmod -R 777 /dashboard
+# 准备数据、前端静态资源和可再生成缓存目录及权限
+RUN mkdir -p /dashboard/data /dashboard/geoip /dashboard/admin-dist /dashboard/user-dist && chmod -R 777 /dashboard
 
 # 拷贝配置和脚本文件
 COPY dashboard/data/config.yaml /dashboard/data
