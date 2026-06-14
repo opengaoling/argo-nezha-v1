@@ -71,14 +71,12 @@
   }
 
   function scrollElementToEdge(element, top) {
-    var left = top ? 0 : Math.max(0, element.scrollWidth - element.clientWidth);
     var scrollTop = top ? 0 : Math.max(0, element.scrollHeight - element.clientHeight);
 
     if (typeof element.scrollTo === "function") {
-      element.scrollTo({ top: scrollTop, left: left, behavior: "smooth" });
+      element.scrollTo({ top: scrollTop, left: element.scrollLeft, behavior: "smooth" });
     } else {
       element.scrollTop = scrollTop;
-      element.scrollLeft = left;
     }
   }
 
