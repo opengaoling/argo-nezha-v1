@@ -35,10 +35,63 @@
     button.style.setProperty("pointer-events", "auto", "important");
   }
 
+  function canScroll(element) {
+    if (!element) return false;
+    return element.scrollHeight > element.clientHeight + 2 || element.scrollWidth > element.clientWidth + 2;
+  }
+
+  function getScrollableElements() {
+    var seen = [];
+    var elements = [];
+    var root = document.scrollingElement || document.documentElement;
+
+    function add(element) {
+      if (!element || seen.indexOf(element) !== -1 || !canScroll(element)) return;
+      seen.push(element);
+      elements.push(element);
+    }
+
+    add(root);
+    add(document.documentElement);
+    add(document.body);
+
+    Array.prototype.forEach.call(document.querySelectorAll("*"), function (element) {
+      var style = window.getComputedStyle(element);
+      var overflowY = style.overflowY;
+      var overflowX = style.overflowX;
+      var canScrollY = /(auto|scroll|overlay)/.test(overflowY) && element.scrollHeight > element.clientHeight + 2;
+      var canScrollX = /(auto|scroll|overlay)/.test(overflowX) && element.scrollWidth > element.clientWidth + 2;
+
+      if (canScrollY || canScrollX) {
+        add(element);
+      }
+    });
+
+    return elements;
+  }
+
+  function scrollElementToEdge(element, top) {
+    var left = top ? 0 : Math.max(0, element.scrollWidth - element.clientWidth);
+    var scrollTop = top ? 0 : Math.max(0, element.scrollHeight - element.clientHeight);
+
+    if (typeof element.scrollTo === "function") {
+      element.scrollTo({ top: scrollTop, left: left, behavior: "smooth" });
+    } else {
+      element.scrollTop = scrollTop;
+      element.scrollLeft = left;
+    }
+  }
+
   function scrollToEdge(top) {
-    var scrollingElement = document.scrollingElement || document.documentElement;
-    var target = top ? 0 : scrollingElement.scrollHeight;
+    var target = top ? 0 : Math.max(
+      document.documentElement.scrollHeight,
+      document.body ? document.body.scrollHeight : 0
+    );
+
     window.scrollTo({ top: target, behavior: "smooth" });
+    getScrollableElements().forEach(function (element) {
+      scrollElementToEdge(element, top);
+    });
   }
 
   function makeButton(label, path, top) {
