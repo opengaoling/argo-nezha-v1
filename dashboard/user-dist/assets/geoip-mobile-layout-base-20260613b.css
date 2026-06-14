@@ -69,51 +69,68 @@
 
 @media (max-width: 767px) {
   .geoip-mobile-ua #root .server-card-list section[style*="grid-template-columns"] {
-    grid-template-columns: minmax(0, 1fr) !important;
-    gap: 1px 0 !important;
-  }
-
-  .geoip-mobile-ua #root .server-card-list .geoip-mobile-platform {
-    align-items: center !important;
-    display: flex !important;
-    gap: 4px !important;
-    grid-column: 1 !important;
-    grid-row: 1 !important;
-    justify-content: flex-start !important;
-    justify-self: stretch !important;
-    min-width: 0 !important;
-    padding: 0 !important;
+    align-items: start !important;
+    gap: 1px 6px !important;
+    grid-template-columns: 8px 18px minmax(0, 1fr) !important;
     width: 100% !important;
   }
 
+  .geoip-mobile-ua #root .server-card-list .geoip-mobile-platform {
+    align-self: start !important;
+    align-items: center !important;
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    gap: 3px !important;
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+    justify-content: center !important;
+    min-width: 17px !important;
+    padding: 0 !important;
+    width: 17px !important;
+  }
+
   .geoip-mobile-ua #root .server-card-list .geoip-mobile-platform-icon {
+    display: block !important;
     flex: 0 0 auto !important;
+    font-size: 11px !important;
+    height: 11px !important;
+    line-height: 11px !important;
     margin: 0 !important;
     text-align: left !important;
-    width: auto !important;
+    width: 16px !important;
   }
 
   .geoip-mobile-ua #root .server-card-list .geoip-mobile-platform-text {
     display: block !important;
     flex: 0 1 auto !important;
+    font-size: 9px !important;
+    font-weight: 600 !important;
+    height: auto !important;
+    line-height: 10px !important;
     margin: 0 !important;
-    max-width: 8rem !important;
+    max-width: 72px !important;
     min-width: 0 !important;
+    overflow: hidden !important;
     padding: 0 !important;
     text-align: left !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
   }
 
   .geoip-mobile-ua #root .server-card-list section[style*="grid-template-columns"] > span:first-child {
     grid-column: 1 !important;
     grid-row: 1 !important;
-    justify-self: end !important;
-    margin-left: 0 !important;
-    margin-top: 2px !important;
+    align-self: start !important;
+    margin-top: 5px !important;
     opacity: 1 !important;
   }
 
   .geoip-mobile-ua #root .server-card-list section[style*="grid-template-columns"] > div:last-child {
-    grid-column: 1 !important;
-    grid-row: 2 !important;
+    grid-column: 3 !important;
+    grid-row: 1 !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    width: auto !important;
   }
 }
