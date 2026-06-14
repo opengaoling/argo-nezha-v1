@@ -11,7 +11,7 @@
   flex: 0 0 2.5px !important;
   height: 2.5px !important;
   line-height: 0 !important;
-  margin: 1px 0 0 !important;
+  margin: 0 !important;
   max-height: 2.5px !important;
   max-width: 100% !important;
   min-height: 0 !important;
@@ -20,6 +20,39 @@
   padding: 0 !important;
   position: relative !important;
   width: 100% !important;
+}
+
+.geoip-mobile-ua #root .geoip-mobile-cpu,
+.geoip-mobile-ua #root .geoip-mobile-mem,
+.geoip-mobile-ua #root .geoip-mobile-stg {
+  align-items: stretch !important;
+  display: grid !important;
+  grid-template-rows: 12px 16px 2.5px !important;
+  row-gap: 1px !important;
+}
+
+.geoip-mobile-ua #root .geoip-mobile-cpu > p,
+.geoip-mobile-ua #root .geoip-mobile-mem > p,
+.geoip-mobile-ua #root .geoip-mobile-stg > p,
+.geoip-mobile-ua #root .geoip-mobile-cpu > div:not(.geoip-native-usage-bar),
+.geoip-mobile-ua #root .geoip-mobile-mem > div:not(.geoip-native-usage-bar),
+.geoip-mobile-ua #root .geoip-mobile-stg > div:not(.geoip-native-usage-bar) {
+  margin: 0 !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+}
+
+.geoip-mobile-ua #root .geoip-mobile-cpu > p,
+.geoip-mobile-ua #root .geoip-mobile-mem > p,
+.geoip-mobile-ua #root .geoip-mobile-stg > p {
+  line-height: 12px !important;
+}
+
+.geoip-mobile-ua #root .geoip-mobile-cpu > div:not(.geoip-native-usage-bar),
+.geoip-mobile-ua #root .geoip-mobile-mem > div:not(.geoip-native-usage-bar),
+.geoip-mobile-ua #root .geoip-mobile-stg > div:not(.geoip-native-usage-bar) {
+  align-items: center !important;
+  line-height: 16px !important;
 }
 
 .geoip-mobile-ua #root .geoip-mobile-cpu > .geoip-native-usage-bar > div,
