@@ -106,7 +106,8 @@ html body .geoip-scroll-tools svg {
 
 @media (max-width: 767px) {
   html body .geoip-scroll-tools {
-    right: max(14px, env(safe-area-inset-right)) !important;
+    left: max(8px, calc(100vw - 54px)) !important;
+    right: auto !important;
     bottom: max(70px, calc(env(safe-area-inset-bottom) + 16px)) !important;
     display: flex !important;
     visibility: visible !important;

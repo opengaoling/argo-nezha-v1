@@ -1,7 +1,17 @@
 (function () {
+  function getViewportWidth() {
+    return document.documentElement.clientWidth || window.innerWidth || 0;
+  }
+
   function applyToolStyles(tools) {
+    var viewportWidth = getViewportWidth();
+    var buttonWidth = 40;
+    var rightGap = 14;
+    var left = Math.max(8, viewportWidth - buttonWidth - rightGap);
+
     tools.style.setProperty("position", "fixed", "important");
-    tools.style.setProperty("right", "max(14px, env(safe-area-inset-right))", "important");
+    tools.style.setProperty("left", left + "px", "important");
+    tools.style.setProperty("right", "auto", "important");
     tools.style.setProperty("bottom", "max(70px, calc(env(safe-area-inset-bottom) + 16px))", "important");
     tools.style.setProperty("z-index", "2147483647", "important");
     tools.style.setProperty("display", "flex", "important");
@@ -75,10 +85,10 @@
   }
 
   window.addEventListener("load", scheduleMount, { once: true });
+  window.addEventListener("resize", mount);
+  window.addEventListener("orientationchange", scheduleMount);
 
   new MutationObserver(function () {
-    if (!document.getElementById("geoip-scroll-tools")) {
-      mount();
-    }
+    mount();
   }).observe(document.documentElement, { childList: true, subtree: true });
 })();
