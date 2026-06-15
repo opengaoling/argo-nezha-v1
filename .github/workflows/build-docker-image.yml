@@ -30,8 +30,24 @@ jobs:
 
       - name: Get panel image ref
         id: panel
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          PANEL_SHA=$(curl -s https://api.github.com/repos/${{ env.PANEL_REPO }}/commits/master | grep -oP '"sha": "\K[0-9a-f]+' | head -n 1)
+          PANEL_SHA=""
+          for attempt in 1 2 3 4 5; do
+            PANEL_SHA=$(curl -fsSL \
+              --retry 3 \
+              --retry-delay 5 \
+              --retry-all-errors \
+              -H "Accept: application/vnd.github+json" \
+              -H "Authorization: Bearer ${GH_TOKEN}" \
+              https://api.github.com/repos/${{ env.PANEL_REPO }}/commits/master | jq -r '.sha // empty') && break
+            sleep $((attempt * 5))
+          done
+          if [ -z "$PANEL_SHA" ]; then
+            echo "Failed to resolve panel commit SHA" >&2
+            exit 1
+          fi
           PANEL_TAG=$(echo "$PANEL_SHA" | cut -c1-7)
           PANEL_IMAGE="ghcr.io/${{ github.repository_owner }}/${{ env.PANEL_IMAGE_NAME }}:${PANEL_TAG}"
           echo "Panel image ref: $PANEL_IMAGE"
