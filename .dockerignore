@@ -1,5 +1,5 @@
-dashboard/admin-dist/assets/*.bak-*
-dashboard/user-dist/assets/*.bak-*
+.git
+.env
 dashboard/admin-dist/
 dashboard/user-dist/
 dashboard/geoip/
