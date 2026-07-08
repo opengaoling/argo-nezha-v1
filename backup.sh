@@ -35,11 +35,9 @@ if [ -d "/tmp/$GH_REPO" ]; then
     TIME=$(date "+%Y-%m-%d-%H:%M:%S")
     echo "↓↓↓↓↓↓↓↓↓↓ dashboard-$TIME.tar.gz list ↓↓↓↓↓↓↓↓↓↓"
     tar czvf "/tmp/$GH_REPO/dashboard-$TIME.tar.gz" \
-        --exclude="data/tsdb" \
-        --exclude="data/geoip.db" \
-        --exclude="data/asn.mmdb" \
-        --exclude="data/GeoLite2-ASN.mmdb" \
-        -C "$WORK_DIR" data/
+        -C "$WORK_DIR" \
+        data/config.yaml \
+        data/sqlite.db
     echo -e "↑↑↑↑↑↑↑↑↑↑ dashboard-$TIME.tar.gz list ↑↑↑↑↑↑↑↑↑↑\n"
 
     # 更新备份 GitHub 库
