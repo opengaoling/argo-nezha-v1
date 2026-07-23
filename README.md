@@ -45,7 +45,16 @@ GH_BACKUP_USER=<填写你的 GitHub 用户名>
 GH_REPO=<填写你用来备份的私有 GitHub 仓库名>
 ARGO_AUTH=<填写你的 Cloudflare Tunnel token 或 JSON>
 ARGO_DOMAIN=<填写你的面板域名>
+# 可选：直接挂载独立前端仓库，修改文件后实时生效
+ADMIN_FRONTEND_DIR=/absolute/path/to/nezha-geoip-frontend/admin-dist
+USER_FRONTEND_DIR=/absolute/path/to/nezha-geoip-frontend/user-dist
 ```
+
+前端与后端运行时分离：Compose 将后台和前台资源分别挂载到
+`/dashboard/admin-dist`、`/dashboard/user-dist`。如果不设置上述两个变量，默认使用
+`./dashboard/admin-dist` 和 `./dashboard/user-dist`，首次启动时会从镜像内置资源自动初始化。
+设置为独立前端仓库的绝对路径后，修改 `index.html`、JS、CSS 或图片都会由面板和
+Nginx 在后续请求中直接读取，不需要重建镜像或重启容器；浏览器仍可能需要强制刷新。
 
 3. 拉取镜像并启动：
 
@@ -99,3 +108,17 @@ docker compose pull && docker compose up -d
 docker compose restart
 docker compose down
 ```
+
+## 前端实时更新
+
+确认当前挂载来源：
+
+```bash
+docker inspect argo-nezha-v1 --format '{{range .Mounts}}{{println .Source "->" .Destination}}{{end}}'
+```
+
+修改独立前端仓库后直接刷新页面即可。`index.html` 和静态资源都使用禁用缓存响应；如果前面
+还有 Cloudflare 缓存规则，应对 `/assets/*`、`/dashboard/assets/*` 和 HTML 页面禁用缓存。
+
+如需临时回到镜像默认前端，删除 `.env` 中的 `ADMIN_FRONTEND_DIR`、
+`USER_FRONTEND_DIR`，然后重建容器。默认目录会在首次启动时由镜像自动填充。
