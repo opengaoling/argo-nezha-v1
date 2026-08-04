@@ -9,4 +9,3 @@ services:
       - ./dashboard/data:/dashboard/data
       - ./dashboard/geoip:/dashboard/geoip
       - ${ADMIN_FRONTEND_DIR:-./dashboard/admin-dist}:/dashboard/admin-dist
-      - ${USER_FRONTEND_DIR:-./dashboard/user-dist}:/dashboard/user-dist
