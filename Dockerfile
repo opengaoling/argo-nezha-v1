@@ -40,8 +40,6 @@ COPY --from=app /etc/ssl/certs /etc/ssl/certs
 # 拷贝 Nginx 配置
 COPY main.conf /etc/nginx/conf.d/main.conf
 
-RUN rm -f /etc/nginx/conf.d/default.conf
-
 # 设置时区
 ENV TZ=Asia/Shanghai
 
